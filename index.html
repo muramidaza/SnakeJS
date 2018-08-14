@@ -12,9 +12,48 @@
 	<script src="https://npmcdn.com/remarkable@1.6.2/dist/remarkable.min.js"></script>
 	
 	<script type="text/babel"> 
-		class App extends React.Component {
+		class User extends React.Component {
+			constructor() {
+				super();
+			}
+
 			render() {
-				return <div>текст</div>;
+				
+				//Передаем по клику на кнопку число 3:
+				return <div>
+					<p>имя: {this.props.name}</p>
+					<p>фамилия: {this.props.surname}</p>
+					
+					<button onClick={this.props.showMessage.bind(null, 3)}>
+						нажми на меня
+					</button>
+				</div>;
+			}
+		}
+
+		class App extends React.Component {
+			constructor() {
+				super();
+
+				this.state = {
+					name: 'Коля',
+					surname: 'Иванов',
+				};
+			}
+			
+			//Метод принимает параметром число:
+			showMessage(num) {
+				alert(this.state.name + ' ' + num);
+			}
+			
+			render() {
+				return <div>
+					<User
+						name={this.state.name}
+						surname={this.state.surname}
+						showMessage={this.showMessage.bind(this)}
+					/>
+				</div>;
 			}
 		}
 

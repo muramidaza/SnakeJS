@@ -2,31 +2,287 @@
 <html> 
 <head> 
 	<meta charset="utf-8"> 
-	<title>Snake</title> 
-	<style>	
-	</style>
-
-	<script src="https://npmcdn.com/react@15.3.0/dist/react.js"></script>
-	<script src="https://npmcdn.com/react-dom@15.3.0/dist/react-dom.js"></script>
-	<script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script>
-	<script src="https://npmcdn.com/jquery@3.1.0/dist/jquery.min.js"></script>
-	<script src="https://npmcdn.com/remarkable@1.6.2/dist/remarkable.min.js"></script>
+	<title>HTML</title> 
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	<script src="js/jquery-3.3.1.min.js"></script>
+</head> 
+<script>
+	var sizeField = 20;
+	var sizeStartSnake = 7;
 	
-	<script type="text/babel"> 
-		class App extends React.Component {
-			render() {
-				return <div>текст</div>;
+	
+	class Game {
+		makeGame(elemGame) {
+			this.interval = 500;
+			
+			this.elemGame = elemGame;
+			
+			this.start = false;
+			
+			this.elemCaption = $('<div/>', {'id': 'divCaption'});
+			var elemButtonStart = $('<div/>', {'id': 'buttonStart', 'text': 'Start', 'click': this.startGame.bind(this)});
+			var elemButtonStop = $('<div/>', {'id': 'buttonStop', 'text': 'Stop', 'click': this.stopGame.bind(this)});
+			this.elemResult = $('<div/>', {'id': 'divResult', 'text': '0'});
+			this.elemCaption.append(elemButtonStart);
+			this.elemCaption.append(this.elemResult);
+			this.elemCaption.append(elemButtonStop);
+			this.elemGame.append(this.elemCaption);
+			
+			this.elemSpeed = $('<div/>', {'id': 'divSpeed'});
+			var elemButtonSlow = $('<div/>', {'id': 'buttonSlow', 'class': 'buttonSpeed ', 'text': 'Slow', 'click': this.setSpeed.bind(this, 1000)});
+			var elemButtonMiddle = $('<div/>', {'id': 'buttonMiddle', 'class': 'buttonSpeed selected', 'text': 'Middle', 'click': this.setSpeed.bind(this, 500)});
+			var elemButtonFast = $('<div/>', {'id': 'buttonFast', 'class': 'buttonSpeed', 'text': 'Fast', 'click': this.setSpeed.bind(this, 100)});
+			this.elemSpeed.append(elemButtonSlow);
+			this.elemSpeed.append(elemButtonMiddle);
+			this.elemSpeed.append(elemButtonFast);
+			this.elemGame.append(this.elemSpeed);			
+			
+			this.divForField = $('<div/>', {'id': 'divField'});
+			this.elemGame.append(this.divForField);
+			
+			var fieldcells = field.makeField(sizeField);
+			this.divForField.append(fieldcells);
+
+			var divKeyboard = $('<div/>', {'id': 'keyboard'});
+			var divLRButtons = $('<div/>', {'id': 'LRButtons'});
+			var elemButtonTop = $('<div/>', {'id': 'buttonTop', 'class': 'buttonControl', 'text': '↑', 'click': this.setDirection.bind(this)});
+			var elemButtonLeft = $('<div/>', {'id': 'buttonLeft', 'class': 'buttonControl', 'text': '←', 'click': this.setDirection.bind(this)});
+			var elemButtonRight = $('<div/>', {'id': 'buttonRight', 'class': 'buttonControl', 'text': '→', 'click': this.setDirection.bind(this)});
+			var elemButtonBottom = $('<div/>', {'id': 'buttonBottom', 'class': 'buttonControl', 'text': '↓', 'click': this.setDirection.bind(this)});
+			divKeyboard.append(elemButtonTop);
+			divLRButtons.append(elemButtonLeft);
+			divLRButtons.append(elemButtonRight);
+			divKeyboard.append(divLRButtons);
+			divKeyboard.append(elemButtonBottom);
+			this.elemGame.append(divKeyboard);
+			
+			document.addEventListener('keydown', this._setDirection.bind(this));			
+		}
+		
+		setSpeed(speed) {
+			console.log('speed ' + speed);
+			
+			if(!this.start) {
+				this.interval = speed;
+				$('.buttonSpeed').removeClass('selected');
+				$(event.target).addClass('selected');
+			}
+		}
+		
+		setDirection() {
+			var direction = event.target.getAttribute('id').substr(6).toLowerCase();
+			console.log(direction);
+			this.direction = direction;
+		}
+		
+		startGame() {
+			if(this.start) {this.stopGame()};
+			
+			this.elemResult.html('0');
+			this.start = true;
+			this.direction = 'right';
+			
+			this.divForField.removeClass('crush'); 
+			this.divForField.html('');			
+			
+			var fieldcells = field.makeField(sizeField);
+			this.divForField.append(fieldcells);		
+			
+			var snakeStartBody = snake.makeSnake(sizeStartSnake);
+			field.setNewSnake(snakeStartBody);
+
+			field.makeNewFood();
+			
+			this.timerGame = setInterval(snake.stepSnake.bind(snake), this.interval);			
+		}
+		
+		stopGame() {
+			console.log('stop');
+			clearInterval(this.timerGame);
+			this.divForField.addClass('crush');
+			this.start = false;
+		}
+		
+		showResult(result) {
+			this.elemResult.html(result);
+		}
+		
+		_setDirection() {
+			var key = event.keyCode;
+			switch(key) {
+				case 39: 
+					this.direction = 'right';
+					break;
+				case 37: 
+					this.direction = 'left';
+					break;
+				case 38: 
+					this.direction = 'top';
+					break;
+				case 40: 
+					this.direction = 'bottom';
+					break;
+				default:
+					this.direction = 'right';
+					break;
+			}
+		}
+	}
+
+	class Field {
+		makeField(sizeField) {
+			this.sizeField = sizeField;
+			this.fieldMatrix = [];
+			this.arrCellElem = [];
+			this.elemFieldCells = $('<div/>', {'id': 'fieldCells'});			
+					
+			for(var i = 0; i < this.sizeField; i++) {
+				this.fieldMatrix[i] = [];
+				for(var j = 0; j < this.sizeField; j++) {
+					var cell = $('<div/>', {'class': 'cell'});
+					this.fieldMatrix[i][j] = cell;
+					this.arrCellElem.push(cell);
+					this.elemFieldCells.append(cell);
+				}
+			}
+			
+			return this.elemFieldCells;
+		}
+		
+		_markBodySnake(cell) {
+			console.log(cell.x + '-' + cell.y);
+			this.fieldMatrix[cell.y][cell.x].addClass('snake');
+			this.fieldMatrix[cell.y][cell.x].mark = true;
+		}
+		
+		_unmarkBodySnake(cell) {
+			console.log(cell.x + '-' + cell.y);
+			this.fieldMatrix[cell.y][cell.x].removeClass('snake');
+			this.fieldMatrix[cell.y][cell.x].mark = false;
+		}		
+		
+		setNewSnake(arrElemSnake) {
+			arrElemSnake.forEach(function(elem) {
+				this._markBodySnake(elem);
+			}, field);
+		}
+		
+		setTailHeadSnake(delCell, newCell) {
+			this._markBodySnake(newCell);
+			this._unmarkBodySnake(delCell);	
+		}
+		
+		displayCrush() {
+			console.log('crush');
+			game.stopGame();
+		}
+		
+		makeNewFood() {
+			var arrEmpty = [];
+			
+			arrEmpty = this.arrCellElem.filter(function(cell) {return !(!!cell.mark)});
+			
+			this.randCell = arrEmpty[Math.floor(Math.random() * arrEmpty.length)];
+			this.randCell.addClass('food');
+			this.randCell.markFood = true; 
+		}
+		
+		eatFood(cell) {
+			this.fieldMatrix[cell.y][cell.x].markFood = false;
+			this.randCell.removeClass('food');
+		}
+		
+		testCellOnFood(cell) {
+			return this.fieldMatrix[cell.y][cell.x].markFood;
+		}
+	}
+	
+	class Snake {
+		makeSnake(sizeStartSnake) {
+			this.sizeSnake = sizeStartSnake;
+			this.arrElemBody = [];
+			this.eat = false;
+			this.countEat = 0;
+			
+			var xcoord = Math.floor(field.sizeField / 2) - this.sizeSnake;
+			var ycoord = Math.floor(field.sizeField / 2);
+			
+			for(var i = 0; i < this.sizeSnake; i++) {
+				this.arrElemBody.push({x: xcoord + i, y: ycoord});
+			}
+			
+			return this.arrElemBody;
+		}
+		
+		stepSnake() {
+			var direction = game.direction;
+			console.log(this.eat);
+			var head = this.arrElemBody[this.arrElemBody.length - 1];
+			if(this.eat) {
+				var oldTail = this.arrElemBody[0];
+				this.eat = false;
+				this.sizeSnake = this.arrElemBody.length;	
+			} else {
+				var oldTail = this.arrElemBody.shift();
+			}
+			
+			var x = head.x;
+			var y = head.y;
+			
+			switch(direction) {
+				case 'right':
+					head = {x: x + 1, y: y};
+					break;
+				case 'left':
+					head = {x: x - 1, y: y};
+					break;
+				case 'top':
+					head = {x: x, y: y - 1};
+					break;
+				case 'bottom':
+					head = {x: x, y: y + 1};
+					break;					
+			}
+			
+			if(!this._testCrush(head)) {
+				if(field.testCellOnFood(head)) {
+					this.eat = true;
+					field.eatFood(head);
+					game.showResult(++this.countEat);
+				}
+				
+				field.setTailHeadSnake(oldTail, head);
+				this.arrElemBody.push(head);
+				
+				if(this.eat) {
+					field.makeNewFood();
+				}
+			} else {
+				field.displayCrush();
 			}
 		}
 
-		ReactDOM.render(
-			<App />,
-			document.getElementById('game')
-		);
-	</script> 
-	
-</head> 
+		_testCrush(head) {
+			//console.log(head);
+			//console.log(this.arrElemBody);
+			//console.log(!!this.arrElemBody.find(elem => elem.x == head.x && elem.y == head.y));
+			
+			return head.x < 0 || head.x >= field.sizeField || head.y < 0 || head.y >= field.sizeField || !!this.arrElemBody.find(elem => elem.x == head.x && elem.y == head.y);
+		}		
+	}
+
+	game = new Game();
+	field = new Field();
+	snake = new Snake(sizeStartSnake);
+
+	$(document).ready(function () {
+		
+		game.makeGame($('#gameField'));
+	});
+
+</script>
 <body> 
-	<div id="game"></div>
+	<div id="gameField">
+	</div>
 </body> 
 </html>

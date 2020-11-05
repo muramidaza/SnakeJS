@@ -1,0 +1,187 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
+#gameField {
+	margin: 10px auto;
+	border: 4px double black;
+	width: 500px;
+	display: flex;
+	flex-flow: column nowrap;
+	justify-content: center;
+	align-items: center;
+	border-radius: 5%;
+	height: 700px;
+}
+
+#divCaption {
+	width: 90%;
+	height: 3%;
+	display: flex;
+	flex-flow: row nowrap;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 0;
+}
+
+#divSpeed {
+	width: 90%;
+	height: 3%;
+	display: flex;
+	flex-flow: row nowrap;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 0;
+}
+
+.buttonSpeed {
+	width: 30%;
+	height: 90%;
+	border: 4px double orange;
+	border-radius: 50%;
+	text-align: center;
+	line-height: 100%;
+	color: orange;
+	cursor: pointer;
+}
+
+.buttonSpeed.selected {
+	border: 4px double red;
+	color: red;
+}
+
+#buttonStart, #buttonStop {
+	width: 30%;
+	height: 100%;
+	border-radius: 50%;
+	text-align: center;
+	line-height: 100%;
+	cursor: pointer;	
+}
+
+#buttonStart {
+	border: 4px double green;
+	color: green;
+}
+
+#buttonStop {
+	border: 4px double red;
+	color: red;
+}
+
+#divResult {
+	width: 30%;
+	height: 90%;
+	border: 1px solid blue;
+	line-height: 100%;
+	text-align: center;
+	color: blue;
+	border-radius: 50%;
+}
+
+#divField {
+	width: 90%;
+	height: 60%;
+	border: 2px solid black;
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: center;
+	align-items: center;
+}
+
+#divField.crush {
+	border: 2px solid red;
+}
+
+#fieldCells {
+	outline: 1px solid black;
+	width: 95%;
+	height: 95%;
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: center;
+	align-items: center;
+}
+
+.cell {
+	width: 5%;
+	height: 5%;
+	outline: 1px solid lightgray;
+	flex: 0 0 auto;
+}
+
+.cell.snake {
+	background-color: yellow;
+	outline: 1px solid yellow;
+}
+
+.crush .cell.snake {
+	background-color: red;
+	outline: 1px solid red;	
+}
+
+.crush #fieldcells {
+	outline: 1px solid red;
+}
+
+.cell.food {
+	background-color: lime;
+	outline: 1px solid lime;
+}
+
+#keyboard {
+	display: none;
+}
+
+@media (max-width: 1100px) {
+	#gameField {
+		width: 100vw;
+		height: 100vh;
+	}
+	
+	#keyboard {
+		display: flex;
+		width: 20vh;
+		height: 20vh;
+		margin: 2vh 0;
+		padding: 2vh;
+		border: 1px solid black;
+		border-radius: 4vh;
+		flex-flow: column nowrap;
+		justify-content: center;
+		align-items: center;
+	}
+	
+	#LRButtons {
+		width: 100%;
+		display: flex;
+		flex-flow: row nowrap;
+		align-items: center;
+		justify-content: space-between;
+	}
+	
+	#divField {
+		width: 70vh;
+		height: 70vh;
+	}
+	
+	#buttonStart, #buttonStop, .buttonSpeed, #divResult {
+		height: 3vh;
+		line-height: 3vh;
+	}
+	
+	#divCaption, #divSpeed {
+		width: 70vh;
+		height: 5vh;
+	}
+	
+	.buttonControl {
+		width: 5vh;
+		height: 5vh;
+		line-height: 5vh;
+		border: 4px double black;
+		border-radius: 50%;
+		text-align: center;
+	}
+}
